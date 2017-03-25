@@ -179,8 +179,10 @@ class Server implements Runnable{
 					PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 					out.println(new Date().toString());
 				} finally {
-					socket.close();
+					ServerConnection connection = new ServerConnection(socket);
+					connection.run();
 				}
+				
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -193,4 +195,32 @@ class Server implements Runnable{
 		}
 	}
 
+}
+
+class ServerConnection implements Runnable {
+	private Socket s;
+	
+	public ServerConnection(Socket s) {
+		this.s = s;
+	}
+
+	@Override
+	public void run() {
+		InputStream in;
+		OutputStream out;
+		try {
+			in = s.getInputStream();
+			out = s.getOutputStream();
+			while(in.read() != -1) {
+				if (!Philosopher.haveLeftChopstick && !Philosopher.haveRightChopstick) {
+					out.write(0);
+				} else {
+					out.write(1);
+				}
+			}	
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+	}
 }
