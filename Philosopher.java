@@ -55,6 +55,8 @@ class Client implements Runnable{
 		Socket left = connect(0);
 		Socket right = connect(1);
 		
+		System.out.println("We connected yo. Left: " + left.getInetAddress() + " Right: " + right.getInetAddress());
+		
 	}
 	
 	private Socket connect(int ipIndex) {
@@ -91,6 +93,7 @@ class Server implements Runnable{
 			listener = new ServerSocket(port);
 			while (true) {
 				Socket socket = listener.accept();
+				System.out.println("Accepted connection from: " + socket.getInetAddress());
 				try {
 					PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 					out.println(new Date().toString());
