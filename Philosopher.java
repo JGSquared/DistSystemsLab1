@@ -1,10 +1,11 @@
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.Date;
-import java.util.Timer;
+import java.util.Random;
 
 /**
  *
@@ -13,6 +14,8 @@ import java.util.Timer;
  */
 public class Philosopher {
 	private static final int PORT_NUMBER = 8080;
+	public static boolean haveLeftChopstick = false;
+	public static boolean haveRightChopstick = false;
 
 
 	public static void main(String[] args) throws Exception {
@@ -41,10 +44,17 @@ public class Philosopher {
 class Client implements Runnable{
 	private int port;
 	private String[] ipAddresses;
+	private enum STATE {
+		THINKING,
+		HUNGRY,
+		EATING
+	}
+	private STATE state;
 	
 	public Client(int port, String[] ipAddresses) {
 		this.port = port;
 		this.ipAddresses = ipAddresses;
+		this.state = STATE.THINKING;
 	}
 
 	@Override
@@ -54,9 +64,80 @@ class Client implements Runnable{
 		//and a "right" client connection
 		Socket left = connect(0);
 		Socket right = connect(1);
+		OutputStream leftOut = null;
+		InputStream leftIn = null;
+		OutputStream rightOut = null;
+		InputStream rightIn = null;
+		try {
+			leftOut = left.getOutputStream();
+			leftIn = left.getInputStream();
+			rightOut = right.getOutputStream();
+			rightIn = right.getInputStream();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		
-		System.out.println("We connected yo. Left: " + left.getInetAddress() + " Right: " + right.getInetAddress());
 		
+		System.out.println("Connected. Left: " + left.getInetAddress() + " Right: " + right.getInetAddress());
+		
+		Random rand = new Random();
+		int maxThinkWait = 30000;
+		int maxHungryWait = 1000;
+		int maxEatWait = 2000;
+		
+		while (true) {
+			if (this.state == STATE.THINKING) {
+				System.out.println("Thinking");
+				int thinkingWait = rand.nextInt(maxThinkWait) + 1;
+				try {
+					Thread.sleep(thinkingWait);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}	
+				
+				this.state = STATE.HUNGRY;			
+			}
+			
+			if (this.state == STATE.HUNGRY) {
+				System.out.println("Hungry");
+				try {
+					leftOut.write(1);
+					int leftHas = leftIn.read();
+					if (leftHas == 0) {
+						Philosopher.haveLeftChopstick = true;
+						rightOut.write(1);
+						int rightHas = rightIn.read();
+						if (rightHas == 0) {
+							Philosopher.haveRightChopstick = true;
+							this.state = STATE.EATING;
+						} else {
+							Philosopher.haveLeftChopstick = false;
+							int hungryWait = rand.nextInt(maxHungryWait) + 1;
+							try {
+								Thread.sleep(hungryWait);
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							}
+						}
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
+				}				
+			}
+			
+			if (this.state == STATE.EATING) {
+				System.out.println("Eating");
+				int eatingWait = rand.nextInt(maxEatWait) + 1;
+				try {
+					Thread.sleep(eatingWait);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				Philosopher.haveLeftChopstick = false;
+				Philosopher.haveRightChopstick = false;
+				this.state = STATE.THINKING;
+			}
+		}
 	}
 	
 	private Socket connect(int ipIndex) {
