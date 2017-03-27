@@ -183,7 +183,8 @@ class Server implements Runnable{
 				Socket socket = listener.accept();
 				System.out.println("Accepted connection from: " + socket.getInetAddress());
 				ServerConnection connection = new ServerConnection(socket);
-				connection.run();
+				Thread t = new Thread(connection);
+				t.start();
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
