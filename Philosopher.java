@@ -113,11 +113,18 @@ class Client implements Runnable{
 						} else {
 							Philosopher.haveLeftChopstick = false;
 							int hungryWait = rand.nextInt(maxHungryWait) + 1;
-							try {
+							try {	
 								Thread.sleep(hungryWait);
 							} catch (InterruptedException e) {
 								e.printStackTrace();
 							}
+						}
+					} else {
+						int hungryWait = rand.nextInt(maxHungryWait) + 1;
+						try {
+							Thread.sleep(hungryWait);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
 						}
 					}
 				} catch (IOException e) {
