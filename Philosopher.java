@@ -182,14 +182,8 @@ class Server implements Runnable{
 			while (true) {
 				Socket socket = listener.accept();
 				System.out.println("Accepted connection from: " + socket.getInetAddress());
-				try {
-					PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-					out.println(new Date().toString());
-				} finally {
-					ServerConnection connection = new ServerConnection(socket);
-					connection.run();
-				}
-				
+				ServerConnection connection = new ServerConnection(socket);
+				connection.run();
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
