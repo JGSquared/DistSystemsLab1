@@ -32,7 +32,7 @@ public class Philosopher {
 		if (args.length < 2 || args.length > 3) {
 			throw new Exception("Must pass in two IPs and optionally <gui>");
 		}
-		
+
 		if (args.length == 3 && (!args[2].equals("gui"))) {
 			throw new Exception("What is this optional argument???");
 		}
@@ -44,7 +44,7 @@ public class Philosopher {
 		// Create threads to run Client and Server as Threads
 		Thread t1 = new Thread(r1);
 		Thread t2 = new Thread(r2);
-		
+
 		if (args.length == 3 && args[2].equals("gui")) {
 			createGUI(r1, args);
 		}
@@ -55,10 +55,10 @@ public class Philosopher {
 
 	}
 
-	private static void createGUI(Runnable client, String[] args) {
+	public static void createGUI(Runnable client, String[] args) {
 		mainFrame = new JFrame("Philosopher Frame");
 		mainFrame.setSize(400, 400);
-	    mainFrame.setLayout(new GridLayout(6, 1));
+		mainFrame.setLayout(new GridLayout(6, 1));
 
 		ipLabel = new JLabel("My IP Address", JLabel.CENTER);
 		leftLabel = new JLabel("Left", JLabel.LEFT);
@@ -73,10 +73,11 @@ public class Philosopher {
 				System.exit(0);
 			}
 		});
-		
+
 		JButton hungryButton = new JButton("Hungry");
+		hungryButton.addActionListener(new clientActionListener((Client) client));
 		JButton dieButton = new JButton("Die");
-		
+
 		controlPanel = new JPanel();
 		controlPanel.setLayout(new FlowLayout());
 		controlPanel.add(hungryButton);
@@ -91,13 +92,30 @@ public class Philosopher {
 		mainFrame.setVisible(true);
 	}
 
+
+}
+
+class clientActionListener implements ActionListener {
+	public Client client;
+
+	public clientActionListener(Client client) {
+		this.client = client;
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		if (this.client.getState() == Client.STATE.THINKING) {
+			this.client.setState(Client.STATE.HUNGRY);
+		}
+	}
 }
 
 class Client implements Runnable {
 	private int port;
 	private String[] ipAddresses;
+	private boolean isRandom = true;
 
-	private enum STATE {
+	public enum STATE {
 		THINKING, HUNGRY, EATING
 	}
 
@@ -107,6 +125,18 @@ class Client implements Runnable {
 		this.port = port;
 		this.ipAddresses = ipAddresses;
 		this.state = STATE.THINKING;
+
+		if (ipAddresses.length == 3) {
+			this.isRandom = false;
+		}
+	}
+
+	public STATE getState() {
+		return state;
+	}
+
+	public void setState(STATE state) {
+		this.state = state;
 	}
 
 	@Override
@@ -137,16 +167,19 @@ class Client implements Runnable {
 		int maxEatWait = 2000;
 
 		while (true) {
-			if (this.state == STATE.THINKING) {
-				System.out.println("Thinking");
-				int thinkingWait = rand.nextInt(maxThinkWait) + 1;
-				try {
-					Thread.sleep(thinkingWait);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
 
-				this.state = STATE.HUNGRY;
+			if (this.state == STATE.THINKING) {
+				if (this.isRandom) {
+					System.out.println("Thinking");
+					int thinkingWait = rand.nextInt(maxThinkWait) + 1;
+					try {
+						Thread.sleep(thinkingWait);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+
+					this.state = STATE.HUNGRY;
+				}
 			}
 
 			if (this.state == STATE.HUNGRY) {
