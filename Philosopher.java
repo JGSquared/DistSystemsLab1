@@ -27,11 +27,13 @@ public class Philosopher {
 
 	public static void main(String[] args) throws Exception {
 
-		if (args.length != 2) {
-			throw new Exception("Must pass in two IPs");
+		if (args.length < 2 || args.length > 3) {
+			throw new Exception("Must pass in two IPs and optionally <gui>");
 		}
-
-		createGUI();
+		
+		if (args.length == 3 && (!args[2].equals("gui"))) {
+			throw new Exception("What is this optional argument???");
+		}
 
 		// create new instances of Client and Server
 		Runnable r1 = new Client(PORT_NUMBER, args);
@@ -40,6 +42,10 @@ public class Philosopher {
 		// Create threads to run Client and Server as Threads
 		Thread t1 = new Thread(r1);
 		Thread t2 = new Thread(r2);
+		
+		if (args.length == 3 && args[2].equals("gui")) {
+			createGUI(r1, args);
+		}
 
 		// start the threads
 		t1.start();
@@ -47,7 +53,7 @@ public class Philosopher {
 
 	}
 
-	private static void createGUI() {
+	private static void createGUI(Runnable client, String[] args) {
 		mainFrame = new JFrame("Philosopher Frame");
 		mainFrame.setSize(400, 400);
 	    mainFrame.setLayout(new GridLayout(4, 1));
