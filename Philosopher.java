@@ -1,3 +1,5 @@
+import java.awt.*;
+import java.awt.event.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -6,6 +8,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Date;
 import java.util.Random;
+import javax.swing.*;
 
 /**
  *
@@ -16,41 +19,78 @@ public class Philosopher {
 	private static final int PORT_NUMBER = 8080;
 	public static boolean haveLeftChopstick = false;
 	public static boolean haveRightChopstick = false;
-
+	public static JFrame mainFrame;
+	public static JLabel ipLabel;
+	public static JLabel leftLabel;
+	public static JLabel rightLabel;
+	public static JPanel controlPanel;
 
 	public static void main(String[] args) throws Exception {
-		
+
 		if (args.length != 2) {
 			throw new Exception("Must pass in two IPs");
 		}
 
-		//create new instances of Client and Server
+		createGUI();
+
+		// create new instances of Client and Server
 		Runnable r1 = new Client(PORT_NUMBER, args);
 		Runnable r2 = new Server(PORT_NUMBER);
 
-
-		//Create threads to run Client and Server as Threads
+		// Create threads to run Client and Server as Threads
 		Thread t1 = new Thread(r1);
 		Thread t2 = new Thread(r2);
 
-		//start the threads
+		// start the threads
 		t1.start();
 		t2.start();
 
 	}
 
+	private static void createGUI() {
+		mainFrame = new JFrame("Philosopher Frame");
+		mainFrame.setSize(400, 400);
+	    mainFrame.setLayout(new GridLayout(4, 1));
+
+		ipLabel = new JLabel("My IP Address", JLabel.CENTER);
+		leftLabel = new JLabel("Left", JLabel.LEFT);
+		rightLabel = new JLabel("Right", JLabel.LEFT);
+		leftLabel.setSize(350, 100);
+		rightLabel.setSize(350, 100);
+
+		mainFrame.addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent windowEvent) {
+				System.exit(0);
+			}
+		});
+		
+		JButton hungryButton = new JButton("Hungry");
+		JButton dieButton = new JButton("Die");
+		
+		controlPanel = new JPanel();
+		controlPanel.setLayout(new FlowLayout());
+		controlPanel.add(hungryButton);
+		controlPanel.add(dieButton);
+
+		mainFrame.add(ipLabel);
+		mainFrame.add(controlPanel);
+		mainFrame.add(leftLabel);
+		mainFrame.add(rightLabel);
+		mainFrame.setVisible(true);
+	}
+
 }
 
-class Client implements Runnable{
+class Client implements Runnable {
 	private int port;
 	private String[] ipAddresses;
+
 	private enum STATE {
-		THINKING,
-		HUNGRY,
-		EATING
+		THINKING, HUNGRY, EATING
 	}
+
 	private STATE state;
-	
+
 	public Client(int port, String[] ipAddresses) {
 		this.port = port;
 		this.ipAddresses = ipAddresses;
@@ -59,9 +99,9 @@ class Client implements Runnable{
 
 	@Override
 	public void run() {
-		//all client code here
-		//you should have a "left" client connection
-		//and a "right" client connection
+		// all client code here
+		// you should have a "left" client connection
+		// and a "right" client connection
 		Socket left = connect(0);
 		Socket right = connect(1);
 		OutputStream leftOut = null;
@@ -76,15 +116,14 @@ class Client implements Runnable{
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
-		
+
 		System.out.println("Connected. Left: " + left.getInetAddress() + " Right: " + right.getInetAddress());
-		
+
 		Random rand = new Random();
 		int maxThinkWait = 30000;
 		int maxHungryWait = 1000;
 		int maxEatWait = 2000;
-		
+
 		while (true) {
 			if (this.state == STATE.THINKING) {
 				System.out.println("Thinking");
@@ -93,11 +132,11 @@ class Client implements Runnable{
 					Thread.sleep(thinkingWait);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
-				}	
-				
-				this.state = STATE.HUNGRY;			
+				}
+
+				this.state = STATE.HUNGRY;
 			}
-			
+
 			if (this.state == STATE.HUNGRY) {
 				System.out.println("Hungry");
 				try {
@@ -113,7 +152,7 @@ class Client implements Runnable{
 						} else {
 							Philosopher.haveLeftChopstick = false;
 							int hungryWait = rand.nextInt(maxHungryWait) + 1;
-							try {	
+							try {
 								Thread.sleep(hungryWait);
 							} catch (InterruptedException e) {
 								e.printStackTrace();
@@ -129,9 +168,9 @@ class Client implements Runnable{
 					}
 				} catch (IOException e) {
 					e.printStackTrace();
-				}				
+				}
 			}
-			
+
 			if (this.state == STATE.EATING) {
 				System.out.println("Eating");
 				int eatingWait = rand.nextInt(maxEatWait) + 1;
@@ -146,7 +185,7 @@ class Client implements Runnable{
 			}
 		}
 	}
-	
+
 	private Socket connect(int ipIndex) {
 		Socket s = null;
 		try {
@@ -164,18 +203,18 @@ class Client implements Runnable{
 
 }
 
-class Server implements Runnable{
+class Server implements Runnable {
 	private int port;
-	
+
 	public Server(int port) {
 		this.port = port;
 	}
 
 	@Override
 	public void run() {
-		//all server code here
-		//you should have a "left" server connection
-		//and a "right" server connection
+		// all server code here
+		// you should have a "left" server connection
+		// and a "right" server connection
 		ServerSocket listener = null;
 		try {
 			listener = new ServerSocket(port);
@@ -201,7 +240,7 @@ class Server implements Runnable{
 
 class ServerConnection implements Runnable {
 	private Socket s;
-	
+
 	public ServerConnection(Socket s) {
 		this.s = s;
 	}
@@ -213,13 +252,13 @@ class ServerConnection implements Runnable {
 		try {
 			in = s.getInputStream();
 			out = s.getOutputStream();
-			while(in.read() != -1) {
+			while (in.read() != -1) {
 				if (!Philosopher.haveLeftChopstick && !Philosopher.haveRightChopstick) {
 					out.write(0);
 				} else {
 					out.write(1);
 				}
-			}	
+			}
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
