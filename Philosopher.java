@@ -22,7 +22,9 @@ public class Philosopher {
 	public static JFrame mainFrame;
 	public static JLabel ipLabel;
 	public static JLabel leftLabel;
+	public static JLabel leftIP;
 	public static JLabel rightLabel;
+	public static JLabel rightIP;
 	public static JPanel controlPanel;
 
 	public static void main(String[] args) throws Exception {
@@ -56,11 +58,13 @@ public class Philosopher {
 	private static void createGUI(Runnable client, String[] args) {
 		mainFrame = new JFrame("Philosopher Frame");
 		mainFrame.setSize(400, 400);
-	    mainFrame.setLayout(new GridLayout(4, 1));
+	    mainFrame.setLayout(new GridLayout(6, 1));
 
 		ipLabel = new JLabel("My IP Address", JLabel.CENTER);
 		leftLabel = new JLabel("Left", JLabel.LEFT);
+		leftIP = new JLabel(args[0], JLabel.LEFT);
 		rightLabel = new JLabel("Right", JLabel.LEFT);
+		rightIP = new JLabel(args[1], JLabel.LEFT);
 		leftLabel.setSize(350, 100);
 		rightLabel.setSize(350, 100);
 
@@ -79,9 +83,11 @@ public class Philosopher {
 		controlPanel.add(dieButton);
 
 		mainFrame.add(ipLabel);
-		mainFrame.add(controlPanel);
 		mainFrame.add(leftLabel);
+		mainFrame.add(leftIP);
 		mainFrame.add(rightLabel);
+		mainFrame.add(rightIP);
+		mainFrame.add(controlPanel);
 		mainFrame.setVisible(true);
 	}
 
