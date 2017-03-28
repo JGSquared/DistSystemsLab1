@@ -22,7 +22,9 @@ public class Philosopher {
 	public static JFrame mainFrame;
 	public static JLabel ipLabel;
 	public static JLabel leftLabel;
+	public static JLabel leftIP;
 	public static JLabel rightLabel;
+	public static JLabel rightIP;
 	public static JPanel controlPanel;
 
 	public static void main(String[] args) throws Exception {
@@ -31,7 +33,7 @@ public class Philosopher {
 			throw new Exception("Must pass in two IPs");
 		}
 
-		createGUI();
+		createGUI(args);
 
 		// create new instances of Client and Server
 		Runnable r1 = new Client(PORT_NUMBER, args);
@@ -47,14 +49,16 @@ public class Philosopher {
 
 	}
 
-	private static void createGUI() {
+	private static void createGUI(String[] ipAddrs) {
 		mainFrame = new JFrame("Philosopher Frame");
 		mainFrame.setSize(400, 400);
-	    mainFrame.setLayout(new GridLayout(4, 1));
+	    mainFrame.setLayout(new GridLayout(6, 1));
 
 		ipLabel = new JLabel("My IP Address", JLabel.CENTER);
 		leftLabel = new JLabel("Left", JLabel.LEFT);
+		leftIP = new JLabel(ipAddrs[0], JLabel.LEFT);
 		rightLabel = new JLabel("Right", JLabel.LEFT);
+		rightIP = new JLabel(ipAddrs[1], JLabel.LEFT);
 		leftLabel.setSize(350, 100);
 		rightLabel.setSize(350, 100);
 
@@ -73,9 +77,11 @@ public class Philosopher {
 		controlPanel.add(dieButton);
 
 		mainFrame.add(ipLabel);
-		mainFrame.add(controlPanel);
 		mainFrame.add(leftLabel);
+		mainFrame.add(leftIP);
 		mainFrame.add(rightLabel);
+		mainFrame.add(rightIP);
+		mainFrame.add(controlPanel);
 		mainFrame.setVisible(true);
 	}
 
