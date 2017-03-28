@@ -169,6 +169,12 @@ class Client implements Runnable {
 		while (true) {
 
 			if (this.state == STATE.THINKING) {
+				try {
+					Thread.sleep(5);
+				} catch (InterruptedException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 				if (this.isRandom) {
 					System.out.println("Thinking");
 					int thinkingWait = rand.nextInt(maxThinkWait) + 1;
