@@ -20,6 +20,7 @@ public class Philosopher {
 	public static boolean haveLeftChopstick = false;
 	public static boolean haveRightChopstick = false;
 	public static JFrame mainFrame;
+	public static JTextField textArea;
 	public static JLabel ipLabel;
 	public static JLabel leftLabel;
 	public static JLabel leftIP;
@@ -59,6 +60,11 @@ public class Philosopher {
 		mainFrame = new JFrame("Philosopher Frame");
 		mainFrame.setSize(400, 400);
 		mainFrame.setLayout(new GridLayout(6, 1));
+		
+		textArea = new JTextField();
+		textArea.setEditable(false);
+//		textArea.setText("THINKING");
+		mainFrame.add(textArea);
 
 		ipLabel = new JLabel("My IP Address", JLabel.CENTER);
 		leftLabel = new JLabel("Left", JLabel.LEFT);
@@ -67,6 +73,8 @@ public class Philosopher {
 		rightIP = new JLabel(args[1], JLabel.LEFT);
 		leftLabel.setSize(350, 100);
 		rightLabel.setSize(350, 100);
+		
+		
 
 		mainFrame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent windowEvent) {
@@ -169,6 +177,10 @@ class Client implements Runnable {
 		while (true) {
 
 			if (this.state == STATE.THINKING) {
+				if (!this.isRandom) {
+					Philosopher.textArea.setText("THINKING");
+				}
+				
 				try {
 					Thread.sleep(5);
 				} catch (InterruptedException e1) {
@@ -190,6 +202,9 @@ class Client implements Runnable {
 
 			if (this.state == STATE.HUNGRY) {
 				System.out.println("Hungry");
+				if (!this.isRandom) {
+					Philosopher.textArea.setText("HUNGRY");
+				}
 				try {
 					leftOut.write(1);
 					int leftHas = leftIn.read();
@@ -224,6 +239,9 @@ class Client implements Runnable {
 
 			if (this.state == STATE.EATING) {
 				System.out.println("Eating");
+				if (!this.isRandom) {
+					Philosopher.textArea.setText("EATING");
+				}
 				int eatingWait = rand.nextInt(maxEatWait) + 1;
 				try {
 					Thread.sleep(eatingWait);
