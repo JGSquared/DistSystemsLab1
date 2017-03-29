@@ -140,8 +140,12 @@ class StopEatingListener implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		synchronized (Philosopher.stateLock) {
-			if (this.client.getState() == Client.STATE.EATING) {
+		if (this.client.getState() == Client.STATE.EATING) {
+			synchronized (Philosopher.chopLock) {
+				Philosopher.haveLeftChopstick = false;
+				Philosopher.haveRightChopstick = false;
+			}
+			synchronized (Philosopher.stateLock) {
 				this.client.setState(Client.STATE.THINKING);
 			}
 		}
