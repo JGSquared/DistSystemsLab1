@@ -10,6 +10,7 @@ import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Random;
+import java.util.Timer;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -186,6 +187,9 @@ class Client implements Runnable {
 		int maxThinkWait = 10000;
 		int maxHungryWait = 1000;
 		int maxEatWait = 2000;
+		
+		long start = 0;
+		long end = 0;
 
 		while (true) {
 
@@ -215,6 +219,9 @@ class Client implements Runnable {
 			}
 
 			if (this.state == STATE.HUNGRY) {
+				if (start == 0) {
+					start = System.currentTimeMillis();
+				}
 				System.out.println("Hungry");
 				if (!this.isRandom) {
 					Philosopher.textArea.setText("HUNGRY");
@@ -257,6 +264,10 @@ class Client implements Runnable {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
+				end = System.currentTimeMillis();
+				if (end - start > 8000) {
+					System.exit(1);
+				}
 			}
 
 			if (this.state == STATE.EATING) {
@@ -277,6 +288,8 @@ class Client implements Runnable {
 				synchronized (Philosopher.stateLock) {
 					this.state = STATE.THINKING;
 				}
+				start = 0;
+				end = 0;
 			}
 		}
 	}
