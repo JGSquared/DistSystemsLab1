@@ -1,14 +1,21 @@
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Date;
 import java.util.Random;
-import javax.swing.*;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 /**
  *
@@ -16,6 +23,8 @@ import javax.swing.*;
  *
  */
 public class Philosopher {
+	public static Object chopLock = new Object();
+	public static Object stateLock = new Object();
 	private static final int PORT_NUMBER = 8080;
 	public static boolean haveLeftChopstick = false;
 	public static boolean haveRightChopstick = false;
@@ -112,8 +121,10 @@ class clientActionListener implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if (this.client.getState() == Client.STATE.THINKING) {
-			this.client.setState(Client.STATE.HUNGRY);
+		synchronized (Philosopher.stateLock) {
+			if (this.client.getState() == Client.STATE.THINKING) {
+				this.client.setState(Client.STATE.HUNGRY);
+			}
 		}
 	}
 }
@@ -144,7 +155,9 @@ class Client implements Runnable {
 	}
 
 	public void setState(STATE state) {
-		this.state = state;
+		synchronized(Philosopher.stateLock) {
+			this.state = state;
+		}
 	}
 
 	@Override
@@ -170,7 +183,7 @@ class Client implements Runnable {
 		System.out.println("Connected. Left: " + left.getInetAddress() + " Right: " + right.getInetAddress());
 
 		Random rand = new Random();
-		int maxThinkWait = 30000;
+		int maxThinkWait = 10000;
 		int maxHungryWait = 1000;
 		int maxEatWait = 2000;
 
@@ -181,12 +194,12 @@ class Client implements Runnable {
 					Philosopher.textArea.setText("THINKING");
 				}
 				
-				try {
-					Thread.sleep(5);
-				} catch (InterruptedException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
+//				try {
+//					Thread.sleep(5);
+//				} catch (InterruptedException e1) {
+//					// TODO Auto-generated catch block
+//					e1.printStackTrace();
+//				}
 				if (this.isRandom) {
 					System.out.println("Thinking");
 					int thinkingWait = rand.nextInt(maxThinkWait) + 1;
@@ -195,8 +208,9 @@ class Client implements Runnable {
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
-
-					this.state = STATE.HUNGRY;
+					synchronized (Philosopher.stateLock) {
+						this.state = STATE.HUNGRY;
+					}
 				}
 			}
 
@@ -209,14 +223,22 @@ class Client implements Runnable {
 					leftOut.write(1);
 					int leftHas = leftIn.read();
 					if (leftHas == 0) {
-						Philosopher.haveLeftChopstick = true;
+						synchronized (Philosopher.chopLock) {
+							Philosopher.haveLeftChopstick = true;
+						}
 						rightOut.write(1);
 						int rightHas = rightIn.read();
 						if (rightHas == 0) {
-							Philosopher.haveRightChopstick = true;
-							this.state = STATE.EATING;
+							synchronized (Philosopher.chopLock) {
+								Philosopher.haveRightChopstick = true;
+							}
+							synchronized (Philosopher.stateLock) {
+								this.state = STATE.EATING;
+							}
 						} else {
-							Philosopher.haveLeftChopstick = false;
+							synchronized (Philosopher.chopLock) {
+								Philosopher.haveLeftChopstick = false;
+							}
 							int hungryWait = rand.nextInt(maxHungryWait) + 1;
 							try {
 								Thread.sleep(hungryWait);
@@ -248,9 +270,13 @@ class Client implements Runnable {
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-				Philosopher.haveLeftChopstick = false;
-				Philosopher.haveRightChopstick = false;
-				this.state = STATE.THINKING;
+				synchronized (Philosopher.chopLock) {
+					Philosopher.haveLeftChopstick = false;
+					Philosopher.haveRightChopstick = false;
+				}
+				synchronized (Philosopher.stateLock) {
+					this.state = STATE.THINKING;
+				}
 			}
 		}
 	}
