@@ -297,12 +297,12 @@ class Client implements Runnable {
 				if (eatStart == 0) {
 					eatStart = System.currentTimeMillis();
 				}
-				System.out.println("Eating");
 				if (!this.isRandom) {
 					Philosopher.textArea.setText("EATING");
 				}
 				
 				if (this.isRandom) {
+					System.out.println("Eating");
 					int eatingWait = rand.nextInt(maxEatWait) + 1;
 					
 					try {
@@ -320,7 +320,7 @@ class Client implements Runnable {
 				}
 				eatEnd = System.currentTimeMillis();
 				if (eatEnd - eatStart > maxEatWait) {
-					System.err.println("You have been eating for longer than two seconds! STOP IT!");
+					Philosopher.textArea.setText("EATING TOO LONG");
 					eatStart = 0;
 					eatEnd = 0;
 				}
