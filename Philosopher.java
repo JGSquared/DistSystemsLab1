@@ -94,12 +94,13 @@ public class Philosopher {
 
 		JButton hungryButton = new JButton("Hungry");
 		hungryButton.addActionListener(new clientActionListener((Client) client));
-		JButton dieButton = new JButton("Die");
+		JButton stopEatingButton = new JButton("Stop Eating");
+		stopEatingButton.addActionListener(new StopEatingListener((Client) client));
 
 		controlPanel = new JPanel();
 		controlPanel.setLayout(new FlowLayout());
 		controlPanel.add(hungryButton);
-		controlPanel.add(dieButton);
+		controlPanel.add(stopEatingButton);
 
 		mainFrame.add(ipLabel);
 		mainFrame.add(leftLabel);
@@ -125,6 +126,23 @@ class clientActionListener implements ActionListener {
 		synchronized (Philosopher.stateLock) {
 			if (this.client.getState() == Client.STATE.THINKING) {
 				this.client.setState(Client.STATE.HUNGRY);
+			}
+		}
+	}
+}
+
+class StopEatingListener implements ActionListener {
+	public Client client;
+
+	public StopEatingListener(Client client) {
+		this.client = client;
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		synchronized (Philosopher.stateLock) {
+			if (this.client.getState() == Client.STATE.EATING) {
+				this.client.setState(Client.STATE.THINKING);
 			}
 		}
 	}
@@ -190,10 +208,15 @@ class Client implements Runnable {
 		
 		long start = 0;
 		long end = 0;
+		
+		long eatStart = 0;
+		long eatEnd = 0;
 
 		while (true) {
 
 			if (this.state == STATE.THINKING) {
+				eatStart = 0;
+				eatEnd = 0;
 				if (!this.isRandom) {
 					Philosopher.textArea.setText("THINKING");
 				}
@@ -271,22 +294,35 @@ class Client implements Runnable {
 			}
 
 			if (this.state == STATE.EATING) {
+				if (eatStart == 0) {
+					eatStart = System.currentTimeMillis();
+				}
 				System.out.println("Eating");
 				if (!this.isRandom) {
 					Philosopher.textArea.setText("EATING");
 				}
-				int eatingWait = rand.nextInt(maxEatWait) + 1;
-				try {
-					Thread.sleep(eatingWait);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
+				
+				if (this.isRandom) {
+					int eatingWait = rand.nextInt(maxEatWait) + 1;
+					
+					try {
+						Thread.sleep(eatingWait);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					synchronized (Philosopher.chopLock) {
+						Philosopher.haveLeftChopstick = false;
+						Philosopher.haveRightChopstick = false;
+					}
+					synchronized (Philosopher.stateLock) {
+						this.state = STATE.THINKING;
+					}
 				}
-				synchronized (Philosopher.chopLock) {
-					Philosopher.haveLeftChopstick = false;
-					Philosopher.haveRightChopstick = false;
-				}
-				synchronized (Philosopher.stateLock) {
-					this.state = STATE.THINKING;
+				eatEnd = System.currentTimeMillis();
+				if (eatEnd - eatStart > maxEatWait) {
+					System.err.println("You have been eating for longer than two seconds! STOP IT!");
+					eatStart = 0;
+					eatEnd = 0;
 				}
 				start = 0;
 				end = 0;
