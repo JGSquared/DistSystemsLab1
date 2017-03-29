@@ -211,12 +211,15 @@ class Client implements Runnable {
 		
 		long eatStart = 0;
 		long eatEnd = 0;
+		
+		boolean tooLongFlag = false;
 
 		while (true) {
 
 			if (this.state == STATE.THINKING) {
 				eatStart = 0;
 				eatEnd = 0;
+				tooLongFlag = false;
 				if (!this.isRandom) {
 					Philosopher.textArea.setText("THINKING");
 				}
@@ -297,7 +300,7 @@ class Client implements Runnable {
 				if (eatStart == 0) {
 					eatStart = System.currentTimeMillis();
 				}
-				if (!this.isRandom) {
+				if (!this.isRandom && !tooLongFlag) {
 					Philosopher.textArea.setText("EATING");
 				}
 				
@@ -319,10 +322,10 @@ class Client implements Runnable {
 					}
 				}
 				eatEnd = System.currentTimeMillis();
-				if (eatEnd - eatStart > maxEatWait) {
+				
+				if (eatEnd - eatStart > 2000) {
 					Philosopher.textArea.setText("EATING TOO LONG");
-					eatStart = 0;
-					eatEnd = 0;
+					tooLongFlag = true;
 				}
 				start = 0;
 				end = 0;
