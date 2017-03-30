@@ -295,7 +295,7 @@ class Client implements Runnable {
 					e.printStackTrace();
 				}
 				end = System.currentTimeMillis();
-				if (end - start > 8000) {
+				if (end - start > 30000) {
 					System.exit(1);
 				}
 			}
