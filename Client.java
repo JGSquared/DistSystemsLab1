@@ -34,6 +34,15 @@ class Client implements Runnable {
 			this.state = state;
 		}
 	}
+	
+	private void wait(Random rand, int waitTime) {
+		int wait = rand.nextInt(waitTime) + 1;
+		try {
+			Thread.sleep(wait);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
 
 	@Override
 	public void run() {
@@ -88,12 +97,7 @@ class Client implements Runnable {
 //				}
 				if (this.isRandom) {
 					System.out.println("Thinking");
-					int thinkingWait = rand.nextInt(maxThinkWait) + 1;
-					try {
-						Thread.sleep(thinkingWait);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
+					wait(rand, maxThinkWait);
 					synchronized (Philosopher.stateLock) {
 						this.state = STATE.HUNGRY;
 					}
@@ -128,20 +132,10 @@ class Client implements Runnable {
 							synchronized (Philosopher.chopLock) {
 								Philosopher.haveLeftChopstick = false;
 							}
-							int hungryWait = rand.nextInt(maxHungryWait) + 1;
-							try {
-								Thread.sleep(hungryWait);
-							} catch (InterruptedException e) {
-								e.printStackTrace();
-							}
+							wait(rand, maxHungryWait);
 						}
 					} else {
-						int hungryWait = rand.nextInt(maxHungryWait) + 1;
-						try {
-							Thread.sleep(hungryWait);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
+						wait(rand, maxHungryWait);
 					}
 				} catch (IOException e) {
 					e.printStackTrace();
@@ -162,13 +156,7 @@ class Client implements Runnable {
 				
 				if (this.isRandom) {
 					System.out.println("Eating");
-					int eatingWait = rand.nextInt(maxEatWait) + 1;
-					
-					try {
-						Thread.sleep(eatingWait);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
+					wait(rand, maxEatWait);
 					synchronized (Philosopher.chopLock) {
 						Philosopher.haveLeftChopstick = false;
 						Philosopher.haveRightChopstick = false;
