@@ -10,7 +10,7 @@ class Client implements Runnable {
 	private boolean isRandom = true;
 
 	public enum STATE {
-		THINKING, HUNGRY, EATING
+		THINKING, HUNGRY, EATING, THIRSTY, SLEEPING, DRINKING
 	}
 
 	private STATE state;
