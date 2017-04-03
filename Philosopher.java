@@ -19,10 +19,12 @@ import javax.swing.JTextField;
 public class Philosopher {
 	public static Object chopLock = new Object();
 	public static Object stateLock = new Object();
+	public static Object cupLock = new Object();
 	public static Queue<Message> messages = new LinkedList<>();
 	private static final int PORT_NUMBER = 8080;
 	public static boolean haveLeftChopstick = false;
 	public static boolean haveRightChopstick = false;
+	public static boolean haveCup = false;
 	public static boolean haveAsked = false;
 	public static boolean forwardPending = false;
 	public static int count;
