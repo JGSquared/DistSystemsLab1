@@ -2,6 +2,8 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.LinkedList;
+import java.util.Queue;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -17,9 +19,14 @@ import javax.swing.JTextField;
 public class Philosopher {
 	public static Object chopLock = new Object();
 	public static Object stateLock = new Object();
+	public static Queue<Message> messages = new LinkedList<>();
 	private static final int PORT_NUMBER = 8080;
 	public static boolean haveLeftChopstick = false;
 	public static boolean haveRightChopstick = false;
+	public static boolean haveAsked = false;
+	public static boolean forwardPending = false;
+	public static int count;
+	public static int numPhilosophers;
 	public static JFrame mainFrame;
 	public static JTextField textArea;
 	public static JLabel ipLabel;
@@ -31,13 +38,15 @@ public class Philosopher {
 
 	public static void main(String[] args) throws Exception {
 
-		if (args.length < 2 || args.length > 3) {
-			throw new Exception("Must pass in two IPs and optionally <gui>");
+		if (args.length != 4) {
+			throw new Exception("Must pass in two IPs, <gui/nogui>, and <numPhilosophers>");
 		}
 
-		if (args.length == 3 && (!args[2].equals("gui"))) {
-			throw new Exception("What is this optional argument???");
+		if ((!args[2].equals("gui")) && (!args[2].equals("nogui"))) {
+			throw new Exception("What is this freakin' argument???");
 		}
+		
+		Philosopher.numPhilosophers = Integer.parseInt(args[3]);
 
 		// create new instances of Client and Server
 		Runnable r1 = new Client(PORT_NUMBER, args);

@@ -51,13 +51,35 @@ class ServerConnection implements Runnable {
 		InputStream in;
 		OutputStream out;
 		try {
+			int received;
 			in = s.getInputStream();
 			out = s.getOutputStream();
-			while (in.read() != -1) {
-				if (!Philosopher.haveLeftChopstick && !Philosopher.haveRightChopstick) {
-					out.write(0);
-				} else {
-					out.write(1);
+			while ((received = in.read()) != -1) {
+				switch(received) {
+				case 0:
+					if (Philosopher.forwardPending) {
+						Philosopher.messages.add(new Message(false, 0));
+					} else if (Philosopher.haveAsked) {
+						Philosopher.count++;
+					}
+				case 1:
+					if (Philosopher.forwardPending) {
+						Philosopher.messages.add(new Message(false, 1));
+					} else if (Philosopher.haveAsked) {
+						if (Philosopher.count == (Philosopher.numPhilosophers - 1)) {
+							
+						}
+					}
+				case 2:
+					if (!Philosopher.haveLeftChopstick && !Philosopher.haveRightChopstick) {
+						out.write(0);
+					} else {
+						out.write(1);
+					}					
+				case 3:
+					
+				default:
+					System.exit(1);
 				}
 			}
 		} catch (IOException e1) {
