@@ -2,6 +2,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.Random;
 
 class Client implements Runnable {
@@ -50,7 +51,19 @@ class Client implements Runnable {
 		// you should have a "left" client connection
 		// and a "right" client connection
 		Socket left = connect(0);
+		try {
+			left.setSoTimeout(1000);
+		} catch (SocketException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		Socket right = connect(1);
+		try {
+			right.setSoTimeout(1000);
+		} catch (SocketException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		OutputStream leftOut = null;
 		InputStream leftIn = null;
 		OutputStream rightOut = null;
@@ -78,6 +91,13 @@ class Client implements Runnable {
 		long eatEnd = 0;
 		
 		boolean tooLongFlag = false;
+		
+		try {
+			Thread messengerThread = new Thread(new Messenger(left, right));
+			messengerThread.start();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
 
 		while (true) {
 

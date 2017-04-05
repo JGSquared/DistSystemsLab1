@@ -58,20 +58,26 @@ class ServerConnection implements Runnable {
 				switch(received) {
 				case 0:
 					if (Philosopher.forwardPending) {
-						Philosopher.messages.add(new Message(false, 0));
+						synchronized(Philosopher.messageLock) {
+							Philosopher.messages.add(new Message(false, 0));
+						}
 					} else if (Philosopher.haveAsked) {
 						Philosopher.count++;
 					}
 				case 1:
-					if (Philosopher.forwardPending) {
-						Philosopher.messages.add(new Message(false, 1));
-					} else if (Philosopher.haveAsked) {
+					if (Philosopher.haveAsked) {
 						if (Philosopher.count == (Philosopher.numPhilosophers - 1)) {
 							synchronized(Philosopher.cupLock) {
 								Philosopher.haveCup = true;
 							}							
 						}
+					} else if (Philosopher.forwardPending) {
+						synchronized(Philosopher.messageLock) {
+							Philosopher.messages.add(new Message(false, 1));
+						}
 					}
+					
+					Philosopher.forwardPending = false;
 				case 2:
 					if (!Philosopher.haveLeftChopstick && !Philosopher.haveRightChopstick) {
 						out.write(0);
@@ -80,10 +86,14 @@ class ServerConnection implements Runnable {
 					}					
 				case 3:
 					if (Philosopher.haveAsked || Philosopher.haveCup) {
-						Philosopher.messages.add(new Message(false, 1));
+						synchronized(Philosopher.messageLock) {
+							Philosopher.messages.add(new Message(false, 1));
+						}
 					} else {
-						Philosopher.messages.add(new Message(false, 0));
-						Philosopher.messages.add(new Message(true, 3));
+						synchronized(Philosopher.messageLock) {
+							Philosopher.messages.add(new Message(false, 0));
+							Philosopher.messages.add(new Message(true, 3));
+						}
 						Philosopher.forwardPending = true;
 					}
 				default:

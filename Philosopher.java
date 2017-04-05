@@ -20,6 +20,7 @@ public class Philosopher {
 	public static Object chopLock = new Object();
 	public static Object stateLock = new Object();
 	public static Object cupLock = new Object();
+	public static Object messageLock = new Object();
 	public static Queue<Message> messages = new LinkedList<>();
 	private static final int PORT_NUMBER = 8080;
 	public static boolean haveLeftChopstick = false;
