@@ -79,6 +79,7 @@ class ServerConnection implements Runnable {
 						out.write(1);
 					}					
 				case 3:
+					out.write(1);
 					if (Philosopher.haveAsked || Philosopher.haveCup) {
 						Philosopher.messages.add(new Message(false, 1));
 					} else {
