@@ -11,31 +11,43 @@ class Client implements Runnable {
 	private boolean isRandom = true;
 
 	public enum STATE {
-		THINKING, HUNGRY, EATING, THIRSTY, SLEEPING, DRINKING
+		THINKING, HUNGRY, EATING, THIRSTY, SLEEPING, DRINKING, QUENCHED
 	}
 
-	private STATE state;
+	private STATE mainState;
+	private STATE thirstState;
 
 	public Client(int port, String[] ipAddresses) {
 		this.port = port;
 		this.ipAddresses = ipAddresses;
-		this.state = STATE.THINKING;
+		this.mainState = STATE.THINKING;
+		this.thirstState = STATE.QUENCHED;
 
 		if (ipAddresses.length == 3) {
 			this.isRandom = false;
 		}
 	}
 
-	public STATE getState() {
-		return state;
+	public STATE getMainState() {
+		return this.mainState;
 	}
 
-	public void setState(STATE state) {
-		synchronized(Philosopher.stateLock) {
-			this.state = state;
+	public void setMainState(STATE state) {
+		synchronized (Philosopher.stateLock) {
+			this.mainState = state;
 		}
 	}
-	
+
+	public STATE getThirstState() {
+		return this.thirstState;
+	}
+
+	public void setThirstState(STATE state) {
+		synchronized (Philosopher.thirstLock) {
+			this.thirstState = state;
+		}
+	}
+
 	private void wait(Random rand, int waitTime) {
 		int wait = rand.nextInt(waitTime) + 1;
 		try {
@@ -47,21 +59,16 @@ class Client implements Runnable {
 
 	@Override
 	public void run() {
-		// all client code here
-		// you should have a "left" client connection
-		// and a "right" client connection
 		Socket left = connect(0);
 		try {
 			left.setSoTimeout(1000);
 		} catch (SocketException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		Socket right = connect(1);
 		try {
 			right.setSoTimeout(1000);
 		} catch (SocketException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		OutputStream leftOut = null;
@@ -83,15 +90,15 @@ class Client implements Runnable {
 		int maxThinkWait = 10000;
 		int maxHungryWait = 1000;
 		int maxEatWait = 2000;
-		
+
 		long start = 0;
 		long end = 0;
-		
+
 		long eatStart = 0;
 		long eatEnd = 0;
-		
+
 		boolean tooLongFlag = false;
-		
+
 		try {
 			Thread messengerThread = new Thread(new Messenger(left, right));
 			messengerThread.start();
@@ -100,99 +107,101 @@ class Client implements Runnable {
 		}
 
 		while (true) {
-
-			if (this.state == STATE.THINKING) {
-				eatStart = 0;
-				eatEnd = 0;
-				tooLongFlag = false;
-				if (!this.isRandom) {
-					Philosopher.textArea.setText("THINKING");
-				}
-				
-//				try {
-//					Thread.sleep(5);
-//				} catch (InterruptedException e1) {
-//					// TODO Auto-generated catch block
-//					e1.printStackTrace();
-//				}
-				if (this.isRandom) {
-					System.out.println("Thinking");
-					wait(rand, maxThinkWait);
-					synchronized (Philosopher.stateLock) {
-						this.state = STATE.HUNGRY;
+			if (this.mainState != STATE.SLEEPING) {
+				if (this.mainState == STATE.THINKING) {
+					eatStart = 0;
+					eatEnd = 0;
+					tooLongFlag = false;
+					if (!this.isRandom) {
+						Philosopher.textArea.setText("THINKING");
+					}
+					if (this.isRandom) {
+						System.out.println("Thinking");
+						wait(rand, maxThinkWait);
+						synchronized (Philosopher.stateLock) {
+							this.mainState = STATE.HUNGRY;
+						}
 					}
 				}
-			}
 
-			if (this.state == STATE.HUNGRY) {
-				if (start == 0) {
-					start = System.currentTimeMillis();
-				}
-				System.out.println("Hungry");
-				if (!this.isRandom) {
-					Philosopher.textArea.setText("HUNGRY");
-				}
-				try {
-					leftOut.write(1);
-					int leftHas = leftIn.read();
-					if (leftHas == 0) {
-						synchronized (Philosopher.chopLock) {
-							Philosopher.haveLeftChopstick = true;
-						}
-						rightOut.write(1);
-						int rightHas = rightIn.read();
-						if (rightHas == 0) {
+				if (this.mainState == STATE.HUNGRY) {
+					if (start == 0) {
+						start = System.currentTimeMillis();
+					}
+					System.out.println("Hungry");
+					if (!this.isRandom) {
+						Philosopher.textArea.setText("HUNGRY");
+					}
+					try {
+						leftOut.write(1);
+						int leftHas = leftIn.read();
+						if (leftHas == 0) {
 							synchronized (Philosopher.chopLock) {
-								Philosopher.haveRightChopstick = true;
+								Philosopher.haveLeftChopstick = true;
 							}
-							synchronized (Philosopher.stateLock) {
-								this.state = STATE.EATING;
+							rightOut.write(1);
+							int rightHas = rightIn.read();
+							if (rightHas == 0) {
+								synchronized (Philosopher.chopLock) {
+									Philosopher.haveRightChopstick = true;
+								}
+								synchronized (Philosopher.stateLock) {
+									this.mainState = STATE.EATING;
+								}
+							} else {
+								synchronized (Philosopher.chopLock) {
+									Philosopher.haveLeftChopstick = false;
+								}
+								wait(rand, maxHungryWait);
 							}
 						} else {
-							synchronized (Philosopher.chopLock) {
-								Philosopher.haveLeftChopstick = false;
-							}
 							wait(rand, maxHungryWait);
 						}
-					} else {
-						wait(rand, maxHungryWait);
+					} catch (IOException e) {
+						e.printStackTrace();
 					}
-				} catch (IOException e) {
-					e.printStackTrace();
+					end = System.currentTimeMillis();
+					if (end - start > 30000) {
+						System.exit(1);
+					}
 				}
-				end = System.currentTimeMillis();
-				if (end - start > 30000) {
-					System.exit(1);
-				}
-			}
 
-			if (this.state == STATE.EATING) {
-				if (eatStart == 0) {
-					eatStart = System.currentTimeMillis();
-				}
-				if (!this.isRandom && !tooLongFlag) {
-					Philosopher.textArea.setText("EATING");
-				}
-				
-				if (this.isRandom) {
-					System.out.println("Eating");
-					wait(rand, maxEatWait);
-					synchronized (Philosopher.chopLock) {
-						Philosopher.haveLeftChopstick = false;
-						Philosopher.haveRightChopstick = false;
+				if (this.mainState == STATE.EATING) {
+					if (eatStart == 0) {
+						eatStart = System.currentTimeMillis();
 					}
-					synchronized (Philosopher.stateLock) {
-						this.state = STATE.THINKING;
+					if (!this.isRandom && !tooLongFlag) {
+						Philosopher.textArea.setText("EATING");
 					}
+
+					if (this.isRandom) {
+						System.out.println("Eating");
+						wait(rand, maxEatWait);
+						synchronized (Philosopher.chopLock) {
+							Philosopher.haveLeftChopstick = false;
+							Philosopher.haveRightChopstick = false;
+						}
+						synchronized (Philosopher.stateLock) {
+							this.mainState = STATE.THINKING;
+						}
+					}
+					eatEnd = System.currentTimeMillis();
+
+					if (eatEnd - eatStart > 2000) {
+						Philosopher.textArea.setText("EATING TOO LONG");
+						tooLongFlag = true;
+					}
+					start = 0;
+					end = 0;
 				}
-				eatEnd = System.currentTimeMillis();
-				
-				if (eatEnd - eatStart > 2000) {
-					Philosopher.textArea.setText("EATING TOO LONG");
-					tooLongFlag = true;
+			} else {
+				wait(rand, 4000);
+				while (Math.random() < .9) {
+					wait(rand, 4000);
 				}
-				start = 0;
-				end = 0;
+				synchronized (Philosopher.stateLock) {
+					this.mainState = STATE.THINKING;
+				}
 			}
 		}
 	}

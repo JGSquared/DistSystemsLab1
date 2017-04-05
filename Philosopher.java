@@ -19,6 +19,7 @@ import javax.swing.JTextField;
 public class Philosopher {
 	public static Object chopLock = new Object();
 	public static Object stateLock = new Object();
+	public static Object thirstLock = new Object();
 	public static Object cupLock = new Object();
 	public static Object messageLock = new Object();
 	public static Queue<Message> messages = new LinkedList<>();
