@@ -55,50 +55,54 @@ class ServerConnection implements Runnable {
 			in = s.getInputStream();
 			out = s.getOutputStream();
 			while ((received = in.read()) != -1) {
-				switch(received) {
-				case 0:
-					if (Philosopher.forwardPending) {
-						synchronized(Philosopher.messageLock) {
-							Philosopher.messages.add(new Message(false, 0));
+				if (Philosopher.mainState != Philosopher.STATE.SLEEPING) {
+					switch (received) {
+					case 0:
+						if (Philosopher.forwardPending) {
+							synchronized (Philosopher.messageLock) {
+								Philosopher.messages.add(new Message(false, 0));
+							}
+						} else if (Philosopher.haveAsked) {
+							Philosopher.count++;
 						}
-					} else if (Philosopher.haveAsked) {
-						Philosopher.count++;
-					}
-				case 1:
-					if (Philosopher.haveAsked) {
-						if (Philosopher.count == (Philosopher.numPhilosophers - 1)) {
-							synchronized(Philosopher.cupLock) {
-								Philosopher.haveCup = true;
-							}							
+					case 1:
+						if (Philosopher.haveAsked) {
+							if (Philosopher.count == (Philosopher.numPhilosophers - 1)) {
+								synchronized (Philosopher.cupLock) {
+									Philosopher.haveCup = true;
+								}
+							} else {
+								Philosopher.count = -1;
+							}
+						} else if (Philosopher.forwardPending) {
+							synchronized (Philosopher.messageLock) {
+								Philosopher.messages.add(new Message(false, 1));
+							}
 						}
-					} else if (Philosopher.forwardPending) {
-						synchronized(Philosopher.messageLock) {
-							Philosopher.messages.add(new Message(false, 1));
+
+						Philosopher.forwardPending = false;
+					case 2:
+						if (!Philosopher.haveLeftChopstick && !Philosopher.haveRightChopstick) {
+							out.write(0);
+						} else {
+							out.write(1);
 						}
-					}
-					
-					Philosopher.forwardPending = false;
-				case 2:
-					if (!Philosopher.haveLeftChopstick && !Philosopher.haveRightChopstick) {
-						out.write(0);
-					} else {
+					case 3:
 						out.write(1);
-					}					
-				case 3:
-					out.write(1);
-					if (Philosopher.haveAsked || Philosopher.haveCup) {
-						synchronized(Philosopher.messageLock) {
-							Philosopher.messages.add(new Message(false, 1));
+						if (Philosopher.haveAsked || Philosopher.haveCup) {
+							synchronized (Philosopher.messageLock) {
+								Philosopher.messages.add(new Message(false, 1));
+							}
+						} else {
+							synchronized (Philosopher.messageLock) {
+								Philosopher.messages.add(new Message(false, 0));
+								Philosopher.messages.add(new Message(true, 3));
+							}
+							Philosopher.forwardPending = true;
 						}
-					} else {
-						synchronized(Philosopher.messageLock) {
-							Philosopher.messages.add(new Message(false, 0));
-							Philosopher.messages.add(new Message(true, 3));
-						}
-						Philosopher.forwardPending = true;
+					default:
+						System.exit(1);
 					}
-				default:
-					System.exit(1);
 				}
 			}
 		} catch (IOException e1) {
