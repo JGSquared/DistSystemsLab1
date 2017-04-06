@@ -65,6 +65,7 @@ class ServerConnection implements Runnable {
 						} else if (Philosopher.haveAsked) {
 							Philosopher.count++;
 						}
+						break;
 					case 1:
 						if (Philosopher.haveAsked) {
 							if (Philosopher.count == (Philosopher.numPhilosophers - 1)) {
@@ -81,12 +82,14 @@ class ServerConnection implements Runnable {
 						}
 
 						Philosopher.forwardPending = false;
+						break;
 					case 2:
 						if (!Philosopher.haveLeftChopstick && !Philosopher.haveRightChopstick) {
 							out.write(0);
 						} else {
 							out.write(1);
 						}
+						break;
 					case 3:
 						out.write(1);
 						if (Philosopher.haveAsked || Philosopher.haveCup) {
@@ -100,8 +103,9 @@ class ServerConnection implements Runnable {
 							}
 							Philosopher.forwardPending = true;
 						}
+						break;
 					default:
-						System.exit(1);
+						System.out.println("WHAT THE HEY?");
 					}
 				}
 			}

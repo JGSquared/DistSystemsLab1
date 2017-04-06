@@ -53,13 +53,13 @@ class Client implements Runnable {
 	public void run() {
 		Socket left = connect(0);
 		try {
-			left.setSoTimeout(1000);
+			left.setSoTimeout(10000);
 		} catch (SocketException e1) {
 			e1.printStackTrace();
 		}
 		Socket right = connect(1);
 		try {
-			right.setSoTimeout(1000);
+			right.setSoTimeout(10000);
 		} catch (SocketException e1) {
 			e1.printStackTrace();
 		}
@@ -128,13 +128,13 @@ class Client implements Runnable {
 						Philosopher.textArea.setText("HUNGRY");
 					}
 					try {
-						leftOut.write(1);
+						leftOut.write(2);
 						int leftHas = leftIn.read();
 						if (leftHas == 0) {
 							synchronized (Philosopher.chopLock) {
 								Philosopher.haveLeftChopstick = true;
 							}
-							rightOut.write(1);
+							rightOut.write(2);
 							int rightHas = rightIn.read();
 							if (rightHas == 0) {
 								synchronized (Philosopher.chopLock) {
