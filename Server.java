@@ -55,7 +55,7 @@ class ServerConnection implements Runnable {
 			in = s.getInputStream();
 			out = s.getOutputStream();
 			while ((received = in.read()) != -1) {
-				if (Philosopher.mainState != Philosopher.STATE.SLEEPING) {
+				if (Philosopher.state != Philosopher.STATE.SLEEPING) {
 					switch (received) {
 					case 0:
 						if (Philosopher.forwardPending) {

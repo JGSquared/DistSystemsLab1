@@ -11,7 +11,7 @@ public class ClientActionListener implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		synchronized (Philosopher.stateLock) {
-			if (Philosopher.mainState == Philosopher.STATE.THINKING) {
+			if (Philosopher.state == Philosopher.STATE.THINKING) {
 				this.client.setMainState(Philosopher.STATE.HUNGRY);
 			}
 		}

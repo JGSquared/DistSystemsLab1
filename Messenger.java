@@ -24,7 +24,7 @@ public class Messenger implements Runnable {
 				synchronized (Philosopher.messageLock) {
 					message = Philosopher.messages.poll();
 				}
-				if (Philosopher.mainState != Philosopher.STATE.SLEEPING) {
+				if (Philosopher.state != Philosopher.STATE.SLEEPING) {
 					if (message.goLeft) {
 						try {
 							this.leftOut.write(message.message);

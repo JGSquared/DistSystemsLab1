@@ -41,11 +41,11 @@ public class Philosopher {
 	public static JPanel controlPanel;
 	public static boolean isRandom = true;
 	public enum STATE {
-		THINKING, HUNGRY, EATING, THIRSTY, SLEEPING, DRINKING, QUENCHED, SATISFIED
+		THINKING, HUNGRY, EATING, THIRSTY, SLEEPING, DRINKING, FAMISHED, DINING
 	}
 
-	public static STATE mainState;
-	public static STATE thirstState;
+	public static STATE state;
+//	public static STATE thirstState;
 
 	public static void main(String[] args) throws Exception {
 

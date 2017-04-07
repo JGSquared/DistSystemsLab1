@@ -10,7 +10,7 @@ public class StopEatingListener implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if (Philosopher.mainState == Philosopher.STATE.EATING) {
+		if (Philosopher.state == Philosopher.STATE.EATING) {
 			synchronized (Philosopher.chopLock) {
 				Philosopher.haveLeftChopstick = false;
 				Philosopher.haveRightChopstick = false;
