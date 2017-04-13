@@ -351,6 +351,12 @@ class Client implements Runnable {
 						Philosopher.state = Philosopher.STATE.THINKING;
 					}
 				}
+				
+				if (Philosopher.count == -1) {
+					synchronized (Philosopher.countLock) {
+						Philosopher.count = 0;
+					}
+				}
 			} else {
 				wait(rand, 4000);
 				while (Math.random() < .9) {

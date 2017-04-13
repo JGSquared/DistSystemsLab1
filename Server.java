@@ -63,7 +63,9 @@ class ServerConnection implements Runnable {
 								Philosopher.messages.add(new Message(false, 0));
 							}
 						} else if (Philosopher.haveAsked) {
-							Philosopher.count++;
+							synchronized (Philosopher.countLock) {
+								Philosopher.count++;
+							}
 						}
 						break;
 					case 1:
@@ -73,7 +75,9 @@ class ServerConnection implements Runnable {
 									Philosopher.haveCup = true;
 								}
 							} else {
-								Philosopher.count = -1;
+								synchronized (Philosopher.countLock) {
+									Philosopher.count = -1;
+								}
 							}
 						} else if (Philosopher.forwardPending) {
 							synchronized (Philosopher.messageLock) {
