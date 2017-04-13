@@ -21,6 +21,7 @@ public class Messenger implements Runnable {
 			Message message = null;
 
 			synchronized (Philosopher.messageLock) {
+				//System.out.println("Top message: " + Philosopher.messages.size());
 				if (!Philosopher.messages.isEmpty()) {
 
 					message = Philosopher.messages.poll();
@@ -48,6 +49,11 @@ public class Messenger implements Runnable {
 							}
 						}
 					}
+				}
+				try {
+					Thread.sleep(200);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
 				}
 			}
 		}

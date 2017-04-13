@@ -186,6 +186,7 @@ class Client implements Runnable {
 									Philosopher.haveAsked = false;
 									Philosopher.state = Philosopher.STATE.DRINKING;
 								}
+								break;
 							}
 						}
 						if (Philosopher.state == Philosopher.STATE.THIRSTY) {
@@ -239,6 +240,7 @@ class Client implements Runnable {
 										Philosopher.haveAsked = false;
 										Philosopher.state = Philosopher.STATE.DINING;
 									}
+									break;
 								}
 							}
 						}
