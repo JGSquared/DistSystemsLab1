@@ -100,6 +100,7 @@ class ServerConnection implements Runnable {
 							synchronized (Philosopher.messageLock) {
 								Philosopher.messages.add(new Message(false, 0));
 								Philosopher.messages.add(new Message(true, 3));
+								System.out.println("Added: " + Philosopher.messages.size());
 							}
 							Philosopher.forwardPending = true;
 						}

@@ -20,30 +20,32 @@ public class Messenger implements Runnable {
 		while (true) {
 			Message message = null;
 
-			if (!Philosopher.messages.isEmpty()) {
-				synchronized (Philosopher.messageLock) {
+			synchronized (Philosopher.messageLock) {
+				if (!Philosopher.messages.isEmpty()) {
+
 					message = Philosopher.messages.poll();
-				}
-				if (Philosopher.state != Philosopher.STATE.SLEEPING) {
-					if (message.goLeft) {
-						try {
-							this.leftOut.write(message.message);
-							this.leftIn.read();
-						} catch (SocketTimeoutException t) {
+
+					if (Philosopher.state != Philosopher.STATE.SLEEPING) {
+						if (message.goLeft) {
 							try {
-								this.rightOut.write(1);
+								this.leftOut.write(message.message);
+								this.leftIn.read();
+							} catch (SocketTimeoutException t) {
+								try {
+									this.rightOut.write(1);
+								} catch (IOException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
 							} catch (IOException e) {
-								// TODO Auto-generated catch block
 								e.printStackTrace();
 							}
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-					} else {
-						try {
-							this.rightOut.write(message.message);
-						} catch (IOException e) {
-							e.printStackTrace();
+						} else {
+							try {
+								this.rightOut.write(message.message);
+							} catch (IOException e) {
+								e.printStackTrace();
+							}
 						}
 					}
 				}
