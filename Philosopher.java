@@ -2,8 +2,8 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -23,7 +23,7 @@ public class Philosopher {
 	public static Object cupLock = new Object();
 	public static Object messageLock = new Object();
 	public static Object countLock = new Object();
-	public static Queue<Message> messages = new LinkedList<>();
+	public static Queue<Message> messages = new ConcurrentLinkedQueue<>();
 	private static final int PORT_NUMBER = 8080;
 	public static boolean haveLeftChopstick = false;
 	public static boolean haveRightChopstick = false;

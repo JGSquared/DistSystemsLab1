@@ -3,7 +3,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
-import java.util.LinkedList;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class Messenger implements Runnable {
 	public OutputStream leftOut = null;
@@ -52,7 +52,7 @@ public class Messenger implements Runnable {
 							}
 						}
 					} else {
-						Philosopher.messages = new LinkedList<>();
+						Philosopher.messages = new ConcurrentLinkedQueue<>();
 					}
 				}
 				// }
