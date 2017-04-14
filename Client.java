@@ -122,7 +122,8 @@ class Client implements Runnable {
 							}
 						} else {
 							synchronized (Philosopher.stateLock) {
-								Philosopher.state = Philosopher.STATE.FAMISHED;
+								//Philosopher.state = Philosopher.STATE.FAMISHED;
+								Philosopher.state = Philosopher.STATE.THIRSTY;
 							}
 						}
 					}
