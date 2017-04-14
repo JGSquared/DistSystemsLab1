@@ -3,6 +3,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.util.LinkedList;
 
 public class Messenger implements Runnable {
 	public OutputStream leftOut = null;
@@ -21,11 +22,13 @@ public class Messenger implements Runnable {
 			Message message = null;
 
 			synchronized (Philosopher.messageLock) {
-				//System.out.println("Top message: " + Philosopher.messages.size());
-				if (!Philosopher.messages.isEmpty()) {
+				// System.out.println("Top message: " +
+				// Philosopher.messages.size());
+				// if (!Philosopher.messages.isEmpty()) {
 
-					message = Philosopher.messages.poll();
+				message = Philosopher.messages.poll();
 
+				if (message != null) {
 					if (Philosopher.state != Philosopher.STATE.SLEEPING) {
 						if (message.goLeft) {
 							try {
@@ -48,8 +51,11 @@ public class Messenger implements Runnable {
 								e.printStackTrace();
 							}
 						}
+					} else {
+						Philosopher.messages = new LinkedList<>();
 					}
 				}
+				// }
 				try {
 					Thread.sleep(200);
 				} catch (InterruptedException e) {
