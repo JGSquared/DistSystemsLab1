@@ -14,7 +14,7 @@ class Client implements Runnable {
 		this.port = port;
 		this.ipAddresses = ipAddresses;
 		Philosopher.state = Philosopher.STATE.THINKING;
-//		Philosopher.thirstState = Philosopher.STATE.QUENCHED;
+		// Philosopher.thirstState = Philosopher.STATE.QUENCHED;
 
 		if (ipAddresses.length == 3) {
 			Philosopher.isRandom = false;
@@ -35,11 +35,11 @@ class Client implements Runnable {
 	// return this.thirstState;
 	// }
 
-//	public void setThirstState(Philosopher.STATE state) {
-//		synchronized (Philosopher.thirstLock) {
-//			Philosopher.thirstState = state;
-//		}
-//	}
+	// public void setThirstState(Philosopher.STATE state) {
+	// synchronized (Philosopher.thirstLock) {
+	// Philosopher.thirstState = state;
+	// }
+	// }
 
 	private void wait(Random rand, int waitTime) {
 		int wait = rand.nextInt(waitTime) + 1;
@@ -116,13 +116,11 @@ class Client implements Runnable {
 							synchronized (Philosopher.stateLock) {
 								Philosopher.state = Philosopher.STATE.HUNGRY;
 							}
-						}
-						else if (d3 == 2) {
+						} else if (d3 == 2) {
 							synchronized (Philosopher.stateLock) {
 								Philosopher.state = Philosopher.STATE.THIRSTY;
 							}
-						}
-						else {
+						} else {
 							synchronized (Philosopher.stateLock) {
 								Philosopher.state = Philosopher.STATE.FAMISHED;
 							}
@@ -173,24 +171,30 @@ class Client implements Runnable {
 						System.exit(1);
 					}
 				}
-				
+
 				if (Philosopher.state == Philosopher.STATE.THIRSTY) {
 					System.out.println("THIRSTY");
 					try {
 						leftOut.write(3);
-						Philosopher.haveAsked = true;
+						synchronized (Philosopher.askedLock) {
+							Philosopher.haveAsked = true;
+						}
 						int response = leftIn.read();
 						while (Philosopher.count != -1) {
 							if (Philosopher.haveCup) {
 								synchronized (Philosopher.stateLock) {
-									Philosopher.haveAsked = false;
+									synchronized (Philosopher.askedLock) {
+										Philosopher.haveAsked = false;
+									}
 									Philosopher.state = Philosopher.STATE.DRINKING;
 								}
 								break;
 							}
 						}
 						if (Philosopher.state == Philosopher.STATE.THIRSTY) {
-							Philosopher.haveAsked = false;
+							synchronized (Philosopher.askedLock) {
+								Philosopher.haveAsked = false;
+							}
 							wait(rand, 2000);
 						}
 					} catch (SocketTimeoutException e) {
@@ -199,7 +203,7 @@ class Client implements Runnable {
 						e.printStackTrace();
 					}
 				}
-				
+
 				if (Philosopher.state == Philosopher.STATE.FAMISHED) {
 					System.out.println("FAMISHED");
 					if (!Philosopher.isRandom) {
@@ -231,13 +235,17 @@ class Client implements Runnable {
 					}
 					try {
 						leftOut.write(3);
-						Philosopher.haveAsked = true;
+						synchronized (Philosopher.askedLock) {
+							Philosopher.haveAsked = true;
+						}
 						int response = leftIn.read();
 						while (Philosopher.count != -1) {
 							if (Philosopher.haveCup) {
 								if (Philosopher.haveLeftChopstick && Philosopher.haveRightChopstick) {
 									synchronized (Philosopher.stateLock) {
-										Philosopher.haveAsked = false;
+										synchronized (Philosopher.askedLock) {
+											Philosopher.haveAsked = false;
+										}
 										Philosopher.state = Philosopher.STATE.DINING;
 									}
 									break;
@@ -245,7 +253,9 @@ class Client implements Runnable {
 							}
 						}
 						if (Philosopher.state == Philosopher.STATE.FAMISHED) {
-							Philosopher.haveAsked = false;
+							synchronized (Philosopher.askedLock) {
+								Philosopher.haveAsked = false;
+							}
 							wait(rand, 2000);
 						}
 					} catch (SocketTimeoutException e) {
@@ -283,7 +293,7 @@ class Client implements Runnable {
 					start = 0;
 					end = 0;
 				}
-				
+
 				if (Philosopher.state == Philosopher.STATE.DRINKING) {
 					System.out.println("DRINKING");
 					int drinkTime = rand.nextInt(5000);
@@ -309,7 +319,7 @@ class Client implements Runnable {
 						}
 					}
 				}
-				
+
 				if (Philosopher.state == Philosopher.STATE.DINING) {
 					System.out.println("DRINKING");
 					int drinkTime = rand.nextInt(5000);
@@ -335,7 +345,7 @@ class Client implements Runnable {
 						}
 					}
 				}
-				
+
 				if (Philosopher.state == Philosopher.STATE.SLEEPING) {
 					try {
 						Thread.sleep(2000);
@@ -353,7 +363,7 @@ class Client implements Runnable {
 						Philosopher.state = Philosopher.STATE.THINKING;
 					}
 				}
-				
+
 				if (Philosopher.count == -1) {
 					synchronized (Philosopher.countLock) {
 						Philosopher.count = 0;
