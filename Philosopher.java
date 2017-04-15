@@ -9,6 +9,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+
 /**
  *
  * @author (your name here)
@@ -17,9 +18,12 @@ import javax.swing.JTextField;
 public class Philosopher {
 	public static Object chopLock = new Object();
 	public static Object stateLock = new Object();
+	public static Object cupLock = new Object();
 	private static final int PORT_NUMBER = 8080;
 	public static boolean haveLeftChopstick = false;
 	public static boolean haveRightChopstick = false;
+	public static boolean hadCupLast = false;
+	public static boolean needToPass = false;
 	public static JFrame mainFrame;
 	public static JTextField textArea;
 	public static JLabel ipLabel;
@@ -28,11 +32,17 @@ public class Philosopher {
 	public static JLabel rightLabel;
 	public static JLabel rightIP;
 	public static JPanel controlPanel;
+	
+	public enum STATE {
+		THINKING, HUNGRY, EATING, SLEEPING
+	}
+
+	public static STATE state;
 
 	public static void main(String[] args) throws Exception {
 
-		if (args.length < 2 || args.length > 3) {
-			throw new Exception("Must pass in two IPs and optionally <gui>");
+		if (args.length < 4) {
+			throw new Exception("Must pass in two IPs, <gui/nogui>, <hasCup>");
 		}
 
 		if (args.length == 3 && (!args[2].equals("gui"))) {
