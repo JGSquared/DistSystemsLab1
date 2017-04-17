@@ -238,12 +238,14 @@ class Client implements Runnable {
 				}
 			} else {
 				try {
+					System.out.println("SLEEPING");
 					Thread.sleep(2000);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
 				while (Math.random() < .9) {
 					try {
+						System.out.println("SLEEPING");
 						Thread.sleep(2000);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
