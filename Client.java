@@ -169,6 +169,9 @@ class Client implements Runnable {
 								synchronized (Philosopher.chopLock) {
 									Philosopher.haveRightChopstick = true;
 								}
+								synchronized (Philosopher.stateLock) {
+									Philosopher.state = Philosopher.STATE.EATING;
+								}
 							} catch (IOException e) {
 								e.printStackTrace();
 							}
