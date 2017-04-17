@@ -2,6 +2,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.util.Random;
 
 class Client implements Runnable {
@@ -17,7 +19,7 @@ class Client implements Runnable {
 		if (ipAddresses[2].equals("gui")) {
 			this.isRandom = false;
 		}
-		
+
 		if (ipAddresses[3].equals("1")) {
 			synchronized (Philosopher.cupLock) {
 				Philosopher.hadCupLast = true;
@@ -51,6 +53,15 @@ class Client implements Runnable {
 		// and a "right" client connection
 		Socket left = connect(0);
 		Socket right = connect(1);
+
+		try {
+			left.setSoTimeout(1500);
+			right.setSoTimeout(15000);
+		} catch (SocketException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
 		OutputStream leftOut = null;
 		InputStream leftIn = null;
 		OutputStream rightOut = null;
@@ -80,7 +91,7 @@ class Client implements Runnable {
 		boolean tooLongFlag = false;
 
 		while (true) {
-			
+
 			if (Philosopher.state != Philosopher.STATE.SLEEPING) {
 				if (Philosopher.needToPass) {
 					try {
@@ -92,11 +103,13 @@ class Client implements Runnable {
 								Philosopher.needToPass = false;
 							}
 						}
+					} catch (SocketTimeoutException e) {
+						
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
 				}
-				
+
 				if (Philosopher.state == Philosopher.STATE.THINKING) {
 					eatStart = 0;
 					eatEnd = 0;
@@ -131,10 +144,40 @@ class Client implements Runnable {
 					try {
 						leftOut.write(1);
 						int leftHas = leftIn.read();
+
 						if (leftHas == 0) {
 							synchronized (Philosopher.chopLock) {
 								Philosopher.haveLeftChopstick = true;
 							}
+							try {
+								rightOut.write(1);
+								int rightHas = rightIn.read();
+								if (rightHas == 0) {
+									synchronized (Philosopher.chopLock) {
+										Philosopher.haveRightChopstick = true;
+									}
+									synchronized (Philosopher.stateLock) {
+										Philosopher.state = Philosopher.STATE.EATING;
+									}
+								} else {
+									synchronized (Philosopher.chopLock) {
+										Philosopher.haveLeftChopstick = false;
+									}
+									wait(rand, maxHungryWait);
+								}
+							} catch (SocketTimeoutException ste) {
+								synchronized (Philosopher.chopLock) {
+									Philosopher.haveRightChopstick = true;
+								}
+							} catch (IOException e) {
+								e.printStackTrace();
+							}
+						}
+					} catch (SocketTimeoutException ste) {
+						synchronized (Philosopher.chopLock) {
+							Philosopher.haveLeftChopstick = true;
+						}
+						try {
 							rightOut.write(1);
 							int rightHas = rightIn.read();
 							if (rightHas == 0) {
@@ -150,8 +193,15 @@ class Client implements Runnable {
 								}
 								wait(rand, maxHungryWait);
 							}
-						} else {
-							wait(rand, maxHungryWait);
+						} catch (SocketTimeoutException ste2) {
+							synchronized (Philosopher.chopLock) {
+								Philosopher.haveRightChopstick = true;
+							}
+							synchronized (Philosopher.stateLock) {
+								Philosopher.state = Philosopher.STATE.EATING;
+							}
+						} catch (IOException e) {
+							e.printStackTrace();
 						}
 					} catch (IOException e) {
 						e.printStackTrace();
@@ -217,6 +267,10 @@ class Client implements Runnable {
 										Philosopher.needToPass = false;
 									}
 								}
+							} catch (SocketTimeoutException e) {
+								if (Philosopher.state != Philosopher.STATE.SLEEPING) {
+									continue;
+								}
 							} catch (IOException e) {
 								e.printStackTrace();
 							}
@@ -231,6 +285,8 @@ class Client implements Runnable {
 									Philosopher.needToPass = false;
 								}
 							}
+						} catch (SocketTimeoutException e) {
+							continue;
 						} catch (IOException e) {
 							e.printStackTrace();
 						}
@@ -261,6 +317,8 @@ class Client implements Runnable {
 								Philosopher.needToPass = false;
 							}
 						}
+					} catch (SocketTimeoutException e) {
+						continue;
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
