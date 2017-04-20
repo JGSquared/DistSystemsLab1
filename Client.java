@@ -56,7 +56,7 @@ class Client implements Runnable {
 
 		try {
 			left.setSoTimeout(1500);
-			right.setSoTimeout(15000);
+			right.setSoTimeout(1500);
 		} catch (SocketException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
