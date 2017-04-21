@@ -245,6 +245,7 @@ class Client implements Runnable {
 				}
 
 				if (Philosopher.hadCupLast) {
+					System.out.println("I HAVE THE CUP");
 					boolean isThirsty = Math.random() > .5;
 					if (isThirsty) {
 						System.out.println("THIRSTY");
@@ -264,6 +265,7 @@ class Client implements Runnable {
 							try {
 								leftOut.write(2);
 								int response = leftIn.read();
+								System.out.println("PASSED THE CUP");
 								if (response == 1) {
 									synchronized (Philosopher.cupLock) {
 										Philosopher.hadCupLast = false;
