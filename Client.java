@@ -104,7 +104,7 @@ class Client implements Runnable {
 							}
 						}
 					} catch (SocketTimeoutException e) {
-						
+
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
@@ -128,7 +128,12 @@ class Client implements Runnable {
 						System.out.println("Thinking");
 						wait(rand, maxThinkWait);
 						synchronized (Philosopher.stateLock) {
-							Philosopher.state = Philosopher.STATE.HUNGRY;
+							boolean isThirsty = Math.random() > .5;
+							if (isThirsty) {
+								Philosopher.state = Philosopher.STATE.THIRSTY;
+							} else {
+								Philosopher.state = Philosopher.STATE.HUNGRY;
+							}
 						}
 					}
 				}
@@ -242,6 +247,16 @@ class Client implements Runnable {
 					}
 					start = 0;
 					end = 0;
+				}
+
+				if (Philosopher.state == Philosopher.STATE.THIRSTY) {
+					if (!this.isRandom) {
+						Philosopher.textArea.setText("THIRSTY");
+					}
+					
+					if (this.isRandom) {
+						
+					}
 				}
 
 				if (Philosopher.hadCupLast) {
