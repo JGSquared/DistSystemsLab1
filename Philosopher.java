@@ -97,13 +97,13 @@ public class Philosopher {
 		hungryButton.addActionListener(new ClientActionListener((Client) client));
 		JButton stopEatingButton = new JButton("Stop Eating");
 		stopEatingButton.addActionListener(new StopEatingListener((Client) client));
-		JButton thirstyButton = new JButton("Stop Eating");
+		JButton thirstyButton = new JButton("Thirsty");
 		thirstyButton.addActionListener(new ThirstyListener());
-		JButton stopDrinkingButton = new JButton("Stop Eating");
+		JButton stopDrinkingButton = new JButton("Stop Drinking");
 		stopDrinkingButton.addActionListener(new StopDrinkingListener());
-		JButton sleepingButton = new JButton("Stop Eating");
+		JButton sleepingButton = new JButton("Sleep");
 		sleepingButton.addActionListener(new SleepingListener());
-		JButton stopSleepingButton = new JButton("Stop Eating");
+		JButton stopSleepingButton = new JButton("Stop Sleeping");
 		stopSleepingButton.addActionListener(new StopSleepingListener());
 		
 		
