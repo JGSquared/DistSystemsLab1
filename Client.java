@@ -324,97 +324,99 @@ class Client implements Runnable {
 					}
 				}
 
-//				if (Philosopher.hadCupLast) {
-//					System.out.println("I HAVE THE CUP");
-//					boolean isThirsty = Math.random() > .5;
-//					if (isThirsty) {
-//						System.out.println("THIRSTY");
-//						int drinkTime = rand.nextInt(6000);
-//						try {
-//							System.out.println("DRINKING");
-//							Thread.sleep(drinkTime);
-//						} catch (InterruptedException e) {
-//							e.printStackTrace();
-//						}
-//						Philosopher.needToPass = true;
-//						if (drinkTime > 5000) {
-//							synchronized (Philosopher.stateLock) {
-//								Philosopher.state = Philosopher.STATE.SLEEPING;
-//							}
-//						} else {
-//							try {
-//								leftOut.write(2);
-//								int response = leftIn.read();
-//								System.out.println("PASSED THE CUP");
-//								if (response == 1) {
-//									synchronized (Philosopher.cupLock) {
-//										Philosopher.hadCupLast = false;
-//										Philosopher.needToPass = false;
-//									}
-//								}
-//							} catch (SocketTimeoutException e) {
-//								if (Philosopher.state != Philosopher.STATE.SLEEPING) {
-//									continue;
-//								}
-//							} catch (IOException e) {
-//								e.printStackTrace();
-//							}
-//						}
-//					} else {
-//						try {
-//							leftOut.write(2);
-//							int response = leftIn.read();
-//							if (response == 1) {
-//								synchronized (Philosopher.cupLock) {
-//									Philosopher.hadCupLast = false;
-//									Philosopher.needToPass = false;
-//								}
-//							}
-//						} catch (SocketTimeoutException e) {
-//							continue;
-//						} catch (IOException e) {
-//							e.printStackTrace();
-//						}
-//					}
-//				}
+				// if (Philosopher.hadCupLast) {
+				// System.out.println("I HAVE THE CUP");
+				// boolean isThirsty = Math.random() > .5;
+				// if (isThirsty) {
+				// System.out.println("THIRSTY");
+				// int drinkTime = rand.nextInt(6000);
+				// try {
+				// System.out.println("DRINKING");
+				// Thread.sleep(drinkTime);
+				// } catch (InterruptedException e) {
+				// e.printStackTrace();
+				// }
+				// Philosopher.needToPass = true;
+				// if (drinkTime > 5000) {
+				// synchronized (Philosopher.stateLock) {
+				// Philosopher.state = Philosopher.STATE.SLEEPING;
+				// }
+				// } else {
+				// try {
+				// leftOut.write(2);
+				// int response = leftIn.read();
+				// System.out.println("PASSED THE CUP");
+				// if (response == 1) {
+				// synchronized (Philosopher.cupLock) {
+				// Philosopher.hadCupLast = false;
+				// Philosopher.needToPass = false;
+				// }
+				// }
+				// } catch (SocketTimeoutException e) {
+				// if (Philosopher.state != Philosopher.STATE.SLEEPING) {
+				// continue;
+				// }
+				// } catch (IOException e) {
+				// e.printStackTrace();
+				// }
+				// }
+				// } else {
+				// try {
+				// leftOut.write(2);
+				// int response = leftIn.read();
+				// if (response == 1) {
+				// synchronized (Philosopher.cupLock) {
+				// Philosopher.hadCupLast = false;
+				// Philosopher.needToPass = false;
+				// }
+				// }
+				// } catch (SocketTimeoutException e) {
+				// continue;
+				// } catch (IOException e) {
+				// e.printStackTrace();
+				// }
+				// }
+				// }
 			} else {
 				synchronized (Philosopher.chopLock) {
 					Philosopher.haveLeftChopstick = false;
 					Philosopher.haveRightChopstick = false;
 				}
-				
-				try {
-					System.out.println("SLEEPING");
-					Thread.sleep(2000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				while (Math.random() < .9) {
+
+				if (this.isRandom) {
 					try {
 						System.out.println("SLEEPING");
 						Thread.sleep(2000);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
-				}
-				if (Philosopher.needToPass) {
-					try {
-						leftOut.write(2);
-						int response = leftIn.read();
-						if (response == 1) {
-							synchronized (Philosopher.cupLock) {
-								Philosopher.hadCupLast = false;
-								Philosopher.needToPass = false;
-							}
+					while (Math.random() < .9) {
+						try {
+							System.out.println("SLEEPING");
+							Thread.sleep(2000);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
 						}
-					} catch (SocketTimeoutException e) {
-						continue;
-					} catch (IOException e) {
-						e.printStackTrace();
 					}
-				}
-				synchronized (Philosopher.stateLock) {
-					Philosopher.state = Philosopher.STATE.THINKING;
+					if (Philosopher.needToPass) {
+						try {
+							leftOut.write(2);
+							int response = leftIn.read();
+							if (response == 1) {
+								synchronized (Philosopher.cupLock) {
+									Philosopher.hadCupLast = false;
+									Philosopher.needToPass = false;
+								}
+							}
+						} catch (SocketTimeoutException e) {
+							continue;
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+					}
+					synchronized (Philosopher.stateLock) {
+						Philosopher.state = Philosopher.STATE.THINKING;
+					}
 				}
 			}
 		}
