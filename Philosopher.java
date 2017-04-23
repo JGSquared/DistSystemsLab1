@@ -57,7 +57,7 @@ public class Philosopher {
 		Thread t1 = new Thread(r1);
 		Thread t2 = new Thread(r2);
 
-		if (args.length == 3 && args[2].equals("gui")) {
+		if (args.length == 4 && args[2].equals("gui")) {
 			createGUI(r1, args);
 		}
 
