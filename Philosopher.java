@@ -103,6 +103,8 @@ public class Philosopher {
 		stopDrinkingButton.addActionListener(new StopDrinkingListener());
 		JButton sleepingButton = new JButton("Stop Eating");
 		sleepingButton.addActionListener(new SleepingListener());
+		JButton stopSleepingButton = new JButton("Stop Eating");
+		stopSleepingButton.addActionListener(new StopSleepingListener());
 		
 		
 
@@ -113,6 +115,7 @@ public class Philosopher {
 		controlPanel.add(thirstyButton);
 		controlPanel.add(stopDrinkingButton);
 		controlPanel.add(sleepingButton);
+		controlPanel.add(stopSleepingButton);
 
 		mainFrame.add(ipLabel);
 		mainFrame.add(leftLabel);
