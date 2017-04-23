@@ -110,6 +110,9 @@ public class Philosopher {
 		controlPanel.setLayout(new FlowLayout());
 		controlPanel.add(hungryButton);
 		controlPanel.add(stopEatingButton);
+		controlPanel.add(thirstyButton);
+		controlPanel.add(stopDrinkingButton);
+		controlPanel.add(sleepingButton);
 
 		mainFrame.add(ipLabel);
 		mainFrame.add(leftLabel);
