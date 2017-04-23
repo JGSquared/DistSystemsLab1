@@ -97,7 +97,7 @@ class Client implements Runnable {
 		while (true) {
 
 			if (Philosopher.state != Philosopher.STATE.SLEEPING) {
-				if (Philosopher.needToPass) {
+				if (Philosopher.needToPass && Philosopher.state != Philosopher.STATE.DRINKING) {
 					try {
 						leftOut.write(2);
 						int response = leftIn.read();
@@ -278,6 +278,7 @@ class Client implements Runnable {
 					if (drinkStart == 0) {
 						drinkStart = System.currentTimeMillis();
 					}
+					Philosopher.needToPass = true;
 					if (!this.isRandom && !tooLongFlag) {
 						Philosopher.textArea.setText("DRINKING");
 					}
@@ -290,7 +291,6 @@ class Client implements Runnable {
 						} catch (InterruptedException e) {
 							e.printStackTrace();
 						}
-						Philosopher.needToPass = true;
 						if (drinkTime > 5000) {
 							synchronized (Philosopher.stateLock) {
 								Philosopher.state = Philosopher.STATE.SLEEPING;
