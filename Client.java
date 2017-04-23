@@ -305,6 +305,9 @@ class Client implements Runnable {
 										Philosopher.hadCupLast = false;
 										Philosopher.needToPass = false;
 									}
+									synchronized (Philosopher.stateLock) {
+										Philosopher.state = Philosopher.STATE.THINKING;
+									}
 								}
 							} catch (SocketTimeoutException e) {
 								if (Philosopher.state != Philosopher.STATE.SLEEPING) {
