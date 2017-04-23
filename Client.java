@@ -385,6 +385,9 @@ class Client implements Runnable {
 					Philosopher.haveLeftChopstick = false;
 					Philosopher.haveRightChopstick = false;
 				}
+				if (!this.isRandom) {
+					Philosopher.textArea.setText("SLEEPING");
+				}
 
 				if (this.isRandom) {
 					try {
