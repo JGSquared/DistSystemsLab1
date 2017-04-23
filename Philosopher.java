@@ -34,7 +34,7 @@ public class Philosopher {
 	public static JPanel controlPanel;
 	
 	public enum STATE {
-		THINKING, HUNGRY, EATING, SLEEPING
+		THINKING, HUNGRY, EATING, SLEEPING, THIRSTY, DRINKING
 	}
 
 	public static STATE state;
@@ -97,11 +97,22 @@ public class Philosopher {
 		hungryButton.addActionListener(new ClientActionListener((Client) client));
 		JButton stopEatingButton = new JButton("Stop Eating");
 		stopEatingButton.addActionListener(new StopEatingListener((Client) client));
+		JButton thirstyButton = new JButton("Stop Eating");
+		thirstyButton.addActionListener(new ThirstyListener());
+		JButton stopDrinkingButton = new JButton("Stop Eating");
+		stopDrinkingButton.addActionListener(new StopDrinkingListener());
+		JButton sleepingButton = new JButton("Stop Eating");
+		sleepingButton.addActionListener(new SleepingListener());
+		
+		
 
 		controlPanel = new JPanel();
 		controlPanel.setLayout(new FlowLayout());
 		controlPanel.add(hungryButton);
 		controlPanel.add(stopEatingButton);
+		controlPanel.add(thirstyButton);
+		controlPanel.add(stopDrinkingButton);
+		controlPanel.add(sleepingButton);
 
 		mainFrame.add(ipLabel);
 		mainFrame.add(leftLabel);
