@@ -15,6 +15,7 @@ class Client implements Runnable {
 		this.port = port;
 		this.ipAddresses = ipAddresses;
 		Philosopher.state = Philosopher.STATE.THINKING;
+//		Philosopher.state = Philosopher.STATE.SLEEPING;
 
 		if (ipAddresses[2].equals("gui")) {
 			this.isRandom = false;
