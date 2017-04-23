@@ -247,7 +247,7 @@ class Client implements Runnable {
 					}
 					eatEnd = System.currentTimeMillis();
 
-					if (eatEnd - eatStart > 2000) {
+					if (eatEnd - eatStart > 2000 && !this.isRandom) {
 						Philosopher.textArea.setText("EATING TOO LONG");
 						tooLongFlag = true;
 					}
@@ -321,7 +321,7 @@ class Client implements Runnable {
 
 					drinkEnd = System.currentTimeMillis();
 
-					if (drinkEnd - drinkStart > 5000) {
+					if (drinkEnd - drinkStart > 5000 && !this.isRandom) {
 						Philosopher.textArea.setText("DRINKING TOO LONG");
 						tooLongFlag = true;
 					}
