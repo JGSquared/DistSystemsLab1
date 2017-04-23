@@ -256,6 +256,9 @@ class Client implements Runnable {
 				}
 
 				if (Philosopher.state == Philosopher.STATE.THIRSTY) {
+					if (Philosopher.needToPass == true) {
+						Philosopher.state = Philosopher.STATE.THINKING;
+					}
 					if (!this.isRandom) {
 						Philosopher.textArea.setText("THIRSTY");
 					}
