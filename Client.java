@@ -52,8 +52,8 @@ class Client implements Runnable {
 		// all client code here
 		// you should have a "left" client connection
 		// and a "right" client connection
-		Socket left = connect(0);
-		Socket right = connect(1);
+		Socket left = connect(0, port);
+		Socket right = connect(1, port);
 
 		try {
 			left.setSoTimeout(1500);
@@ -428,7 +428,7 @@ class Client implements Runnable {
 		}
 	}
 
-	private Socket connect(int ipIndex) {
+	private Socket connect(int ipIndex, int port) {
 		Socket s = null;
 		try {
 			s = new Socket(ipAddresses[ipIndex], port);
@@ -438,7 +438,7 @@ class Client implements Runnable {
 			} catch (InterruptedException e1) {
 				e1.printStackTrace();
 			}
-			return connect(ipIndex);
+			return connect(ipIndex, port);
 		}
 		return s;
 	}
